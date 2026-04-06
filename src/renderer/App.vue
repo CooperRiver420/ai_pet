@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import PetCanvas from './components/PetCanvas.vue'
 import { PetState } from './utils/petState'
 
 const electronInfo = ref('')
 const petCanvasRef = ref()
+const appRef = ref()
+
+// 拖拽状态
+let isDragging = false
+let dragOffsetX = 0
+let dragOffsetY = 0
 
 onMounted(() => {
   if (window.electronAPI) {
@@ -15,11 +21,32 @@ onMounted(() => {
   }
 })
 
+function onMouseDown(e: MouseEvent) {
+  if (e.button !== 0) return // 只响应左键
+  isDragging = true
+  dragOffsetX = e.screenX
+  dragOffsetY = e.screenY
+  window.electronAPI?.getPetPosition().then(pos => {
+    dragOffsetX = e.screenX - pos.x
+    dragOffsetY = e.screenY - pos.y
+  })
+}
+
+function onMouseMove(e: MouseEvent) {
+  if (!isDragging) return
+  const x = e.screenX - dragOffsetX
+  const y = e.screenY - dragOffsetY
+  window.electronAPI?.setPetPosition(x, y)
+}
+
+function onMouseUp() {
+  isDragging = false
+}
+
 function onPetClick() {
   console.log('Pet clicked!')
 }
 
-// 测试用：点击不同区域切换状态
 function setHappy() {
   petCanvasRef.value?.setState(PetState.Happy)
 }
@@ -35,7 +62,14 @@ function setIdle() {
 </script>
 
 <template>
-  <div class="app">
+  <div 
+    ref="appRef"
+    class="app" 
+    @mousedown="onMouseDown"
+    @mousemove="onMouseMove"
+    @mouseup="onMouseUp"
+    @mouseleave="onMouseUp"
+  >
     <PetCanvas 
       ref="petCanvasRef"
       :scale="2"
@@ -76,48 +110,11 @@ body::-webkit-scrollbar {
 }
 
 .app {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
+  width: 64px;
+  height: 64px;
+  position: fixed;
   background: transparent !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden !important;
-}
-
-.test-controls {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-  z-index: 1000;
-  -webkit-app-region: no-drag;
-}
-
-.test-controls button {
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.test-controls button:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
-
-.info {
-  position: fixed;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: center;
+  cursor: move; /* 拖拽时显示移动光标 */
 }
 </style>
