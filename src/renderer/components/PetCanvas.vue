@@ -1,5 +1,5 @@
 <template>
-  <div class="pet-canvas-container" :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px', position: 'absolute', left: '0px', top: '0px', pointerEvents: 'auto' }">
+  <div class="pet-canvas-container" :style="containerStyle">
     <canvas 
       ref="canvasRef" 
       :width="canvasWidth" 
@@ -29,6 +29,16 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const canvasWidth = 64
 const canvasHeight = 64
 const scale = computed(() => props.scale ?? 2)
+const isLoading = ref(true)
+
+const containerStyle = computed(() => ({
+  width: `${canvasWidth}px`,
+  height: `${canvasHeight}px`,
+  position: 'absolute' as const,
+  left: '0px',
+  top: '0px',
+  pointerEvents: 'auto' as const
+}))
 
 let sprite: SpriteSheet | null = null
 let animationFrameId: number | null = null
@@ -45,7 +55,7 @@ function render(timestamp: number) {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
   // Draw current frame
-  if (sprite) {
+  if (sprite && sprite.isLoaded()) {
     sprite.drawFrame(ctx, currentFrame, 0, 0, scale.value)
   }
 
@@ -62,15 +72,16 @@ function onClick() {
   emit('click')
 }
 
-function initSprite() {
-  if (props.spriteSrc && canvasRef.value) {
+async function initSprite() {
+  if (!props.spriteSrc || !canvasRef.value) return
+  
+  try {
     sprite = new SpriteSheet(props.spriteSrc, 32, 32, 4)
-    // Wait for image to load
-    const img = new Image()
-    img.onload = () => {
-      // sprite is ready
-    }
-    img.src = props.spriteSrc
+    await sprite.load()
+    isLoading.value = false
+    console.log('Sprite loaded successfully')
+  } catch (e) {
+    console.error('Failed to load sprite:', e)
   }
 }
 
@@ -83,9 +94,12 @@ onUnmounted(() => {
   if (animationFrameId) cancelAnimationFrame(animationFrameId)
 })
 
-watch(() => props.spriteSrc, (newSrc) => {
+watch(() => props.spriteSrc, async (newSrc) => {
   if (newSrc) {
+    isLoading.value = true
     sprite = new SpriteSheet(newSrc, 32, 32, 4)
+    await sprite.load()
+    isLoading.value = false
     currentFrame = 0
   }
 })
