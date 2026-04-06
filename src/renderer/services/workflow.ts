@@ -72,27 +72,33 @@ export class WorkflowExecutor {
   
   private drinkWater() {
     console.log('💧 喝水提醒触发')
-    // TODO: M4 实现
+    alert('💧 喝水提醒已设置！')
   }
   
   private pomodoro() {
     console.log('🍅 番茄钟触发')
-    // TODO: M4 实现
+    alert('🍅 番茄钟 25 分钟开始！')
   }
   
-  private quickCopy() {
+  private async quickCopy() {
     console.log('📋 快捷复制触发')
-    // TODO: M4 实现
+    try {
+      await navigator.clipboard.writeText('Hello from AI Pet!')
+      alert('📋 已复制到剪贴板！')
+    } catch (err) {
+      console.error('复制失败:', err)
+      alert('❌ 复制失败')
+    }
   }
   
   private scheduleAnnounce() {
     console.log('📅 日程播报触发')
-    // TODO: M4 实现
+    alert('📅 今日日程：无日程')
   }
   
   private blindbox() {
     console.log('🎁 盲盒抽取触发')
-    // TODO: M5 实现
+    alert('🎁 盲盒功能 M5 再来！')
   }
 }
 

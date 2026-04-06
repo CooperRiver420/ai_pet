@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import PetCanvas from './components/PetCanvas.vue'
 import QuickPanel from './components/QuickPanel.vue'
 import { usePanelStore } from './stores/panelStore'
@@ -16,7 +16,29 @@ onMounted(async () => {
       `Node: ${window.electronAPI.versions.node}, ` +
       `Chrome: ${window.electronAPI.versions.chrome}`
   }
+
+  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleKeyDown)
 })
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeyDown)
+})
+
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    panelStore.hidePanel()
+  }
+}
+
+function handleClickOutside(e: MouseEvent) {
+  const panel = document.querySelector('.quick-panel')
+  const pet = document.querySelector('.pet-area')
+  if (panel && !panel.contains(e.target as Node) && !pet?.contains(e.target as Node)) {
+    panelStore.hidePanel()
+  }
+}
 
 function onPetClick() {
   console.log('Pet clicked!')

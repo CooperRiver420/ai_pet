@@ -18,6 +18,14 @@
           <span class="icon">📋</span>
           <span class="label">复制</span>
         </button>
+        <button class="tool-btn" @click="onScheduleAnnounce">
+          <span class="icon">📅</span>
+          <span class="label">日程</span>
+        </button>
+        <button class="tool-btn" @click="onBlindbox">
+          <span class="icon">🎁</span>
+          <span class="label">盲盒</span>
+        </button>
         <button class="tool-btn" @click="onSettings">
           <span class="icon">⚙️</span>
           <span class="label">设置</span>
@@ -37,12 +45,16 @@ const emit = defineEmits<{
   drinkWater: []
   pomodoro: []
   quickCopy: []
+  scheduleAnnounce: []
+  blindbox: []
   settings: []
 }>()
 
 function onDrinkWater() { emit('drinkWater') }
 function onPomodoro() { emit('pomodoro') }
 function onQuickCopy() { emit('quickCopy') }
+function onScheduleAnnounce() { emit('scheduleAnnounce') }
+function onBlindbox() { emit('blindbox') }
 function onSettings() { emit('settings') }
 </script>
 
