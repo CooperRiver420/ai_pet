@@ -1,0 +1,49 @@
+# Node
+node_modules/
+dist/
+dist-win/
+dist-mac/
+*.log
+npm-debug.log*
+
+# Python virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Electron
+.electron/
+*.asar
+
+# Local config (contains API keys)
+.env
+.env.local
+.env.*.local
+src/config/local.ts
+src/config/local.js
+
+# electron-store (contains user data + keys)
+*store*.json
+!*store*.example.json
+
+# Chat history / local data
+chat-history/
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Build artifacts
+*.exe
+*.dmg
+*.AppImage
+
+# PRD / sensitive docs (do not upload)
+PRD.md
+Functional_Module_Specification.md
+UI_UX_Design_Specification.md
