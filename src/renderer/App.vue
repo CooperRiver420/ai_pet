@@ -40,20 +40,26 @@ function onPetClick() {
 }
 
 html, body {
-  background: transparent;
+  background: transparent !important;
   font-family: Arial, sans-serif;
   color: #fff;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: hidden !important;
+  -webkit-app-region: drag; /* 整个窗口可拖拽 */
+}
+
+body::-webkit-scrollbar {
+  display: none !important;
 }
 
 .app {
   width: 100vw;
   height: 100vh;
   position: relative;
-  background: transparent;
+  background: transparent !important;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden !important;
 }
 </style>
