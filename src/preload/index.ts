@@ -23,7 +23,7 @@ declare global {
         electron: string
       }
       getPetPosition: () => Promise<{ x: number; y: number }>
-      setPetPosition: (x: number, y: number) => Promise<boolean>
+      setPetPosition: (x: number, y: number) => Promise<{ success: boolean; position?: { x: number; y: number }; error?: string }>
       getPets: () => Promise<Array<{
         id: string
         name: string

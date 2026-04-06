@@ -1,4 +1,5 @@
 import Store from 'electron-store'
+import { createHash } from 'crypto'
 
 interface PetStoreSchema {
   petPosition: { x: number; y: number }
@@ -14,9 +15,15 @@ interface PetStoreSchema {
   }
 }
 
+// 动态生成加密密钥（基于机器ID + 时间戳种子）
+function generateEncryptionKey(): string {
+  const seed = `${process.platform}-${process.arch}-ai-pet-2026`
+  return createHash('sha256').update(seed).digest('hex').substring(0, 32)
+}
+
 export const store = new Store<PetStoreSchema>({
   name: 'ai-pet-config',
-  encryptionKey: 'ai-pet-secure-key-2026',  // 简单加密
+  encryptionKey: generateEncryptionKey(),
   defaults: {
     petPosition: { x: 100, y: 100 },
     pets: [
