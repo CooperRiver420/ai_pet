@@ -4,6 +4,7 @@ import PetCanvas from './components/PetCanvas.vue'
 import QuickPanel from './components/QuickPanel.vue'
 import SettingsModal from './components/SettingsModal.vue'
 import ChatPopup from './components/ChatPopup.vue'
+import BlindBoxPopup from './components/BlindBoxPopup.vue'
 import { usePanelStore } from './stores/panelStore'
 import { PetState } from './utils/petState'
 
@@ -12,6 +13,7 @@ const petCanvasRef = ref()
 const panelStore = usePanelStore()
 const showSettings = ref(false)
 const showChat = ref(false)
+const showBlindBox = ref(false)
 
 onMounted(async () => {
   if (window.electronAPI) {
@@ -84,6 +86,16 @@ function onChatClose() {
   showChat.value = false
 }
 
+function onBlindBox() {
+  console.log('Blind box triggered')
+  panelStore.hidePanel()
+  showBlindBox.value = true
+}
+
+function onBlindBoxClose() {
+  showBlindBox.value = false
+}
+
 function setHappy() {
   petCanvasRef.value?.setState(PetState.Happy)
 }
@@ -118,6 +130,7 @@ function setIdle() {
       @quickCopy="onQuickCopy"
       @aiChat="onAIChat"
       @settings="onSettings"
+      @blindBox="onBlindBox"
     />
 
     <!-- AI 聊天弹窗 -->
@@ -131,6 +144,12 @@ function setIdle() {
       :visible="showSettings"
       @close="showSettings = false"
     />
+
+    <!-- 盲盒弹窗 -->
+    <BlindBoxPopup
+      :visible="showBlindBox"
+      @close="onBlindBoxClose"
+    />
     
     <!-- 测试用状态切换按钮（不可拖拽区域） -->
     <div class="test-controls">
@@ -138,6 +157,7 @@ function setIdle() {
       <button @click.stop="setBusy">B</button>
       <button @click.stop="setHungry">Hu</button>
       <button @click.stop="setIdle">I</button>
+      <button @click.stop="showBlindBox = true" title="盲盒">🎁</button>
     </div>
   </div>
 </template>

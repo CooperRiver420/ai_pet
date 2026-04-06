@@ -1,3 +1,12 @@
+import { 
+  startDrinkReminder, 
+  stopDrinkReminder,
+  startPomodoro, 
+  stopPomodoro,
+  speak,
+  copyToClipboard 
+} from './efficiency'
+
 // 工作流类型
 export type WorkflowType = 
   | 'drink_water' 
@@ -71,34 +80,47 @@ export class WorkflowExecutor {
   }
   
   private drinkWater() {
-    console.log('💧 喝水提醒触发')
-    alert('💧 喝水提醒已设置！')
+    speak('喝水时间到了！记得多喝水哦～')
+    startDrinkReminder(() => {
+      speak('喝水时间到了！')
+    }, 60)
   }
   
   private pomodoro() {
-    console.log('🍅 番茄钟触发')
-    alert('🍅 番茄钟 25 分钟开始！')
+    speak('番茄钟开始，专注25分钟！')
+    startPomodoro(
+      (state) => {
+        // 每分钟播报一次
+        if (state.remainingSeconds % 60 === 0) {
+          const mins = Math.floor(state.remainingSeconds / 60)
+          if (mins > 0) {
+            console.log(`番茄钟剩余 ${mins} 分钟`)
+          }
+        }
+      },
+      () => {
+        speak('番茄钟结束！休息一下吧～')
+      }
+    )
   }
   
   private async quickCopy() {
-    console.log('📋 快捷复制触发')
-    try {
-      await navigator.clipboard.writeText('Hello from AI Pet!')
-      alert('📋 已复制到剪贴板！')
-    } catch (err) {
-      console.error('复制失败:', err)
-      alert('❌ 复制失败')
+    const text = 'Hello from AI Pet!'
+    const success = await copyToClipboard(text)
+    if (success) {
+      speak('已复制到剪贴板')
     }
   }
   
   private scheduleAnnounce() {
-    console.log('📅 日程播报触发')
-    alert('📅 今日日程：无日程')
+    const now = new Date()
+    const hour = now.getHours()
+    const minute = now.getMinutes()
+    speak(`现在是${hour}点${minute}分，今天没有日程安排`)
   }
   
   private blindbox() {
-    console.log('🎁 盲盒抽取触发')
-    alert('🎁 盲盒功能 M5 再来！')
+    speak('盲盒功能即将上线，敬请期待！')
   }
 }
 

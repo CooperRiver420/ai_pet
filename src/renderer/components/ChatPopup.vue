@@ -43,6 +43,7 @@
 import { ref, nextTick, watch } from 'vue'
 import VoiceInput from './VoiceInput.vue'
 import { chat, Message, getApiKey } from '@/services/minimax'
+import { speak } from '@/services/efficiency'
 
 const props = defineProps<{
   visible: boolean
@@ -122,6 +123,8 @@ async function sendMessage() {
       role: 'assistant',
       content: response
     })
+    // TTS 播报 AI 回复
+    speak(response)
   } catch (error: any) {
     messages.value.push({
       role: 'assistant',
