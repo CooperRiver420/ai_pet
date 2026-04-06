@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import PetCanvas from './components/PetCanvas.vue'
+import QuickPanel from './components/QuickPanel.vue'
+import { usePanelStore } from './stores/panelStore'
 import { PetState } from './utils/petState'
 
 const electronInfo = ref('')
 const petCanvasRef = ref()
+const panelStore = usePanelStore()
 
 onMounted(async () => {
   if (window.electronAPI) {
@@ -17,6 +20,31 @@ onMounted(async () => {
 
 function onPetClick() {
   console.log('Pet clicked!')
+  panelStore.togglePanel()
+}
+
+function onPanelClose() {
+  panelStore.hidePanel()
+}
+
+function onDrinkWater() {
+  console.log('Drink water triggered')
+  panelStore.hidePanel()
+}
+
+function onPomodoro() {
+  console.log('Pomodoro triggered')
+  panelStore.hidePanel()
+}
+
+function onQuickCopy() {
+  console.log('Quick copy triggered')
+  panelStore.hidePanel()
+}
+
+function onSettings() {
+  console.log('Settings triggered')
+  panelStore.hidePanel()
 }
 
 function setHappy() {
@@ -43,6 +71,16 @@ function setIdle() {
         @click="onPetClick"
       />
     </div>
+    
+    <!-- 快捷面板 -->
+    <QuickPanel
+      :visible="panelStore.isPanelVisible"
+      @close="onPanelClose"
+      @drinkWater="onDrinkWater"
+      @pomodoro="onPomodoro"
+      @quickCopy="onQuickCopy"
+      @settings="onSettings"
+    />
     
     <!-- 测试用状态切换按钮（不可拖拽区域） -->
     <div class="test-controls">
