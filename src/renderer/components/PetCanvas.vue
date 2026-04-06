@@ -11,13 +11,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { SpriteSheet } from '@/utils/sprite'
 import { PetState } from '@/utils/petState'
 
+// Props - 不再需要 spriteSrc 和 state，由内部管理
 const props = defineProps<{
-  spriteSrc: string
-  state: PetState
   scale?: number
 }>()
 
@@ -25,11 +24,29 @@ const emit = defineEmits<{
   click: []
 }>()
 
+// Canvas refs
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const canvasWidth = 64
 const canvasHeight = 64
 const scale = computed(() => props.scale ?? 2)
-const isLoading = ref(true)
+
+// 动画状态管理
+const currentState = ref<PetState>(PetState.Idle)
+const isPlayingReaction = ref(false)
+
+// 精灵图URL映射
+const spriteUrlMap: Record<PetState, string> = {
+  [PetState.Idle]: '/src/renderer/assets/sprites/cat_idle.png',
+  [PetState.Happy]: '/src/renderer/assets/sprites/cat_happy.png',
+  [PetState.Busy]: '/src/renderer/assets/sprites/cat_busy.png',
+  [PetState.Hungry]: '/src/renderer/assets/sprites/cat_hungry.png',
+  [PetState.Reaction]: '/src/renderer/assets/sprites/cat_idle.png'
+}
+
+// 精灵图实例映射
+const spriteMap: Partial<Record<PetState, SpriteSheet>> = {}
+
+const currentSprite = computed(() => spriteMap[currentState.value])
 
 const containerStyle = computed(() => ({
   width: `${canvasWidth}px`,
@@ -40,7 +57,6 @@ const containerStyle = computed(() => ({
   pointerEvents: 'auto' as const
 }))
 
-let sprite: SpriteSheet | null = null
 let animationFrameId: number | null = null
 let currentFrame = 0
 let lastFrameTime = 0
@@ -55,6 +71,7 @@ function render(timestamp: number) {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
   // Draw current frame
+  const sprite = spriteMap[currentState.value]
   if (sprite && sprite.isLoaded()) {
     sprite.drawFrame(ctx, currentFrame, 0, 0, scale.value)
   }
@@ -68,25 +85,45 @@ function render(timestamp: number) {
   animationFrameId = requestAnimationFrame(render)
 }
 
+// 状态切换 - 对外暴露
+function setState(state: PetState) {
+  if (isPlayingReaction.value && state !== PetState.Idle) return
+  currentState.value = state
+  console.log('Pet state changed to:', state)
+}
+
+// 点击触发 Reaction
 function onClick() {
+  if (isPlayingReaction.value) return
+  isPlayingReaction.value = true
+  currentState.value = PetState.Reaction
+  console.log('Reaction triggered')
+  
+  // 400ms 后返回 Idle
+  setTimeout(() => {
+    currentState.value = PetState.Idle
+    isPlayingReaction.value = false
+    console.log('Reaction ended, back to Idle')
+  }, 400)
+  
   emit('click')
 }
 
-async function initSprite() {
-  if (!props.spriteSrc || !canvasRef.value) return
-  
-  try {
-    sprite = new SpriteSheet(props.spriteSrc, 32, 32, 4)
+// 加载所有精灵图
+async function loadAllSprites() {
+  const loadPromises = Object.entries(spriteUrlMap).map(async ([state, url]) => {
+    const sprite = new SpriteSheet(url, 32, 32, 4)
     await sprite.load()
-    isLoading.value = false
-    console.log('Sprite loaded successfully')
-  } catch (e) {
-    console.error('Failed to load sprite:', e)
-  }
+    spriteMap[state as PetState] = sprite
+    console.log(`Sprite loaded for state: ${state}`)
+  })
+  
+  await Promise.all(loadPromises)
+  console.log('All sprites loaded')
 }
 
-onMounted(() => {
-  initSprite()
+onMounted(async () => {
+  await loadAllSprites()
   animationFrameId = requestAnimationFrame(render)
 })
 
@@ -94,14 +131,9 @@ onUnmounted(() => {
   if (animationFrameId) cancelAnimationFrame(animationFrameId)
 })
 
-watch(() => props.spriteSrc, async (newSrc) => {
-  if (newSrc) {
-    isLoading.value = true
-    sprite = new SpriteSheet(newSrc, 32, 32, 4)
-    await sprite.load()
-    isLoading.value = false
-    currentFrame = 0
-  }
+// 对外暴露方法
+defineExpose({
+  setState
 })
 </script>
 

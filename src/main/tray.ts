@@ -1,10 +1,13 @@
-import { Tray, Menu, nativeImage, app } from 'electron'
-import { join } from 'path'
+import { Tray, Menu, nativeImage, app, BrowserWindow } from 'electron'
 
 export class PetTray {
   private tray: Tray | null = null
+  private petWindow: BrowserWindow | null = null
+  private isPetVisible = true
 
-  create() {
+  create(petWindow: BrowserWindow) {
+    this.petWindow = petWindow
+
     // 创建简单托盘图标（16x16 PNG）
     const icon = nativeImage.createFromBuffer(
       Buffer.from([
@@ -28,19 +31,41 @@ export class PetTray {
     this.tray = new Tray(icon)
     this.tray.setToolTip('AI Pet')
 
+    this.updateMenu()
+
+    this.tray.on('click', () => {
+      this.togglePet()
+    })
+  }
+
+  private updateMenu() {
     const contextMenu = Menu.buildFromTemplate([
-      { label: '显示宠物', click: () => {} },
-      { label: '隐藏宠物', click: () => {} },
+      {
+        label: this.isPetVisible ? '隐藏宠物' : '显示宠物',
+        click: () => this.togglePet()
+      },
       { type: 'separator' },
-      { label: '设置', click: () => {} },
+      { label: '设置', click: () => this.openSettings() },
       { type: 'separator' },
       { label: '退出', click: () => app.quit() }
     ])
+    this.tray?.setContextMenu(contextMenu)
+  }
 
-    this.tray.setContextMenu(contextMenu)
-    this.tray.on('click', () => {
-      this.tray?.popUpContextMenu()
-    })
+  private togglePet() {
+    if (!this.petWindow) return
+    if (this.isPetVisible) {
+      this.petWindow.hide()
+    } else {
+      this.petWindow.show()
+    }
+    this.isPetVisible = !this.isPetVisible
+    this.updateMenu()
+  }
+
+  private openSettings() {
+    // TODO: M2 实现设置窗口
+    console.log('Settings clicked')
   }
 
   destroy() {

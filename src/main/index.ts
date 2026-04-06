@@ -9,10 +9,10 @@ let petTray: PetTray
 
 app.whenReady().then(() => {
   petWindow = new PetWindow()
-  petWindow.create()
+  const win = petWindow.create()
 
   petTray = new PetTray()
-  petTray.create()
+  petTray.create(win)
 
   setupIPC(petWindow)
 

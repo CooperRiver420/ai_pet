@@ -8,7 +8,7 @@ export class PetWindow {
   private petWidth = 64
   private petHeight = 64
 
-  create() {
+  create(): BrowserWindow {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize
 
     this.window = new BrowserWindow({
@@ -48,6 +48,8 @@ export class PetWindow {
 
     // 保存位置变化
     this.setupDrag()
+
+    return this.window
   }
 
   private setupDrag() {
