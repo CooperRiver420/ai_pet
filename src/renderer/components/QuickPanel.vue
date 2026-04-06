@@ -26,6 +26,10 @@
           <span class="icon">🎁</span>
           <span class="label">盲盒</span>
         </button>
+        <button class="tool-btn" @click="onAIChat">
+          <span class="icon">🤖</span>
+          <span class="label">AI 聊天</span>
+        </button>
         <button class="tool-btn" @click="onSettings">
           <span class="icon">⚙️</span>
           <span class="label">设置</span>
@@ -47,6 +51,7 @@ const emit = defineEmits<{
   quickCopy: []
   scheduleAnnounce: []
   blindbox: []
+  aiChat: []
   settings: []
 }>()
 
@@ -55,6 +60,7 @@ function onPomodoro() { emit('pomodoro') }
 function onQuickCopy() { emit('quickCopy') }
 function onScheduleAnnounce() { emit('scheduleAnnounce') }
 function onBlindbox() { emit('blindbox') }
+function onAIChat() { emit('aiChat') }
 function onSettings() { emit('settings') }
 </script>
 

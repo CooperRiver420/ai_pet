@@ -2,12 +2,16 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import PetCanvas from './components/PetCanvas.vue'
 import QuickPanel from './components/QuickPanel.vue'
+import SettingsModal from './components/SettingsModal.vue'
+import ChatPopup from './components/ChatPopup.vue'
 import { usePanelStore } from './stores/panelStore'
 import { PetState } from './utils/petState'
 
 const electronInfo = ref('')
 const petCanvasRef = ref()
 const panelStore = usePanelStore()
+const showSettings = ref(false)
+const showChat = ref(false)
 
 onMounted(async () => {
   if (window.electronAPI) {
@@ -64,9 +68,20 @@ function onQuickCopy() {
   panelStore.hidePanel()
 }
 
+function onAIChat() {
+  console.log('AI Chat triggered')
+  panelStore.hidePanel()
+  showChat.value = true
+}
+
 function onSettings() {
   console.log('Settings triggered')
   panelStore.hidePanel()
+  showSettings.value = true
+}
+
+function onChatClose() {
+  showChat.value = false
 }
 
 function setHappy() {
@@ -101,7 +116,20 @@ function setIdle() {
       @drinkWater="onDrinkWater"
       @pomodoro="onPomodoro"
       @quickCopy="onQuickCopy"
+      @aiChat="onAIChat"
       @settings="onSettings"
+    />
+
+    <!-- AI 聊天弹窗 -->
+    <ChatPopup
+      :visible="showChat"
+      @close="onChatClose"
+    />
+
+    <!-- 设置弹窗 -->
+    <SettingsModal
+      :visible="showSettings"
+      @close="showSettings = false"
     />
     
     <!-- 测试用状态切换按钮（不可拖拽区域） -->
