@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import PetCanvas from './components/PetCanvas.vue'
+import { PetState } from './utils/petState'
 
 const electronInfo = ref('')
+const petState = ref<PetState>(PetState.Idle)
+const spriteSrc = ref('/src/renderer/assets/sprites/cat_idle.png')
 
 onMounted(() => {
   if (window.electronAPI) {
@@ -11,13 +15,20 @@ onMounted(() => {
       `Chrome: ${window.electronAPI.versions.chrome}`
   }
 })
+
+function onPetClick() {
+  console.log('Pet clicked!')
+}
 </script>
 
 <template>
   <div class="app">
-    <h1>AI Pet</h1>
-    <p v-if="electronInfo">{{ electronInfo }}</p>
-    <p v-else>Loading...</p>
+    <PetCanvas 
+      :sprite-src="spriteSrc"
+      :state="petState"
+      :scale="2"
+      @click="onPetClick"
+    />
   </div>
 </template>
 
@@ -28,28 +39,21 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-body {
+html, body {
+  background: transparent;
   font-family: Arial, sans-serif;
-  background: #1a1a2e;
   color: #fff;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 .app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: transparent;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  gap: 20px;
-}
-
-h1 {
-  font-size: 2.5rem;
-  color: #00d9ff;
-}
-
-p {
-  color: #aaa;
 }
 </style>
